@@ -705,7 +705,7 @@
       '对建筑伤害','破塔卸甲','治疗值','承受伤害','重伤','复活/清泉','焚骨'];
     const aoa = [];
     let k = 0;
-    [['示例帮会甲', 55], ['示例帮会乙', 60]].forEach(([guild, n]) => {
+    [['示例帮会甲', 60], ['示例帮会乙', 60]].forEach(([guild, n]) => {
       aoa.push([guild, n]);
       aoa.push(HEAD.slice());
       for (let i = 0; i < n; i++, k++) {
