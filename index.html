@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>帮战数据分析 · 成员五维</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="author-banner">【萧玖凤制作（另：江山如画渡江云招pvp玩家，帮会内氛围好，带寄到，不压力人，没有小团体）】</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">戰</div>
+    <div>
+      <h1>帮战数据分析</h1>
+      <p id="srcInfo">未导入数据</p>
+    </div>
+  </div>
+  <nav class="nav" id="nav">
+    <button class="nav-btn active" data-view="members">成员分析</button>
+    <button class="nav-btn" data-view="league">联赛对比</button>
+  </nav>
+  <div class="tools">
+    <button class="btn primary" id="btnImport">导入 Excel</button>
+    <button class="btn" id="btnDemo">示例数据</button>
+    <button class="btn" id="btnExport" disabled>导出</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.txt" hidden />
+  </div>
+</header>
+
+<div class="notice-bar" id="noticeBar">
+  <span class="nb-ico">ⓘ</span>
+  <span>鸿音已按战报数据自动区分：<b>D&nbsp;鸿</b>（输出鸿音）、<b>奶鸿</b>（治疗鸿音），判据为「治疗值 &gt; 人伤 + 塔伤」——仅供参考。</span>
+</div>
+
+<!-- ============ 视图一：成员分析 ============ -->
+<section class="view" id="view-members">
+  <div class="empty" id="emptyHint">
+    <div class="empty-box">
+      <div class="e-icon">⬆</div>
+      <h2>把帮战 Excel / CSV 拖进来</h2>
+      <p>支持<b>游戏原生的「帮会战报导出」</b>——多个帮会分段、
+        <code>击败/清泉</code> 这类列名都能直接读，帮会名会自动补上。<br/>
+        点任意成员即可看他与本门派的五维对比。</p>
+      <button class="btn primary" id="btnPick">选择文件</button>
+      <div class="e-hint">数据只在本机浏览器处理，不会上传</div>
+    </div>
+  </div>
+
+  <div id="memberWrap" hidden>
+    <div class="toolbar">
+      <input class="input" id="search" type="search" placeholder="搜索角色 / 门派 / 帮会…" />
+      <select class="input" id="filterSchool"><option value="">全部门派</option></select>
+      <select class="input" id="filterGuild"><option value="">全部帮会</option></select>
+      <span class="spacer"></span>
+      <button class="btn" id="btnMap">字段设置</button>
+      <span class="count" id="memCount"></span>
+    </div>
+    <div class="map-panel" id="mapPanel" hidden>
+      <div class="map-grid" id="mapGrid"></div>
+      <div class="map-foot">
+        <span class="lab">列名没认出来？在这里手动指定，然后点重新分析。</span>
+        <button class="btn primary" id="btnApplyMap">重新分析</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll"><table id="memTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 视图二：联赛对比 ============ -->
+<section class="view" id="view-league" hidden>
+  <div class="empty" id="leagueEmpty">
+    <div class="empty-box"><h2>先导入数据</h2><p>导入后这里会显示双方对比大屏。</p></div>
+  </div>
+  <div id="leagueWrap" hidden>
+    <div class="toolbar">
+      <label class="lab">我方帮会</label>
+      <select class="input" id="myGuild"></select>
+      <label class="lab">口径</label>
+      <select class="input" id="aggMode">
+        <option value="total">总量</option>
+        <option value="avg">人均</option>
+      </select>
+      <span class="spacer"></span>
+      <span class="count" id="leagueCount"></span>
+    </div>
+    <div class="vs-kpis" id="vsKpis"></div>
+    <div class="vs-grid">
+      <div class="card"><div class="card-h">团队能力对比</div><div class="chart" id="vsRadar"></div></div>
+      <div class="card"><div class="card-h" id="pieATitle">我方阵容人数</div><div class="chart" id="vsPieA"></div></div>
+      <div class="card"><div class="card-h" id="pieBTitle">敌方阵容人数</div><div class="chart" id="vsPieB"></div></div>
+      <div class="card"><div class="card-h" id="chDmg">各门派 人伤产出</div><div class="chart" id="vsDmg"></div></div>
+      <div class="card"><div class="card-h" id="chKda">各门派 KDA</div><div class="chart" id="vsKda"></div></div>
+      <div class="card"><div class="card-h" id="chDeath">各门派 重伤人数</div><div class="chart" id="vsDeath"></div></div>
+      <div class="card"><div class="card-h" id="chPerDeath">各门派 每死输出</div><div class="chart" id="vsPerDeath"></div></div>
+      <div class="card"><div class="card-h" id="chTank">各门派 承伤</div><div class="chart" id="vsTank"></div></div>
+      <div class="card"><div class="card-h" id="chTower">各门派 塔伤</div><div class="chart" id="vsTower"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 个人雷达弹窗 ============ -->
+<div class="overlay" id="overlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div class="mh-left">
+        <div class="mh-avatar" id="mAvatar">战</div>
+        <div>
+          <h3 id="mName">—</h3>
+          <p id="mSchool">—</p>
+        </div>
+      </div>
+      <button class="x" id="mClose">×</button>
+    </div>
+    <div class="modal-tabs" id="mTabs"></div>
+    <div class="modal-radar" id="mRadar"></div>
+    <div class="modal-table" id="mTable"></div>
+    <div class="modal-note" id="mNote"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="vendor/echarts.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
